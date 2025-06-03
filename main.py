@@ -16,9 +16,13 @@ collection = db[os.getenv("COLLECTION_NAME")]
 app = FastAPI()
 
 class SensorData(BaseModel):
-    suhu: int
-    kelembaban: int
-    mq: int
+    suhu: float
+    kelembapan: float
+    ph: float
+    nitrogen: int
+    kalium: int
+    fosfor: int
+    konduktivitas: int
 
 from fastapi import FastAPI
 
@@ -52,8 +56,12 @@ async def get_data(
 async def kirim_data(data: SensorData):
     document = {
         "suhu": data.suhu,
-        "kelembaban": data.kelembaban,
-        "mq": data.mq,
+        "kelembapan": data.kelembapan,
+        "ph": data.ph,
+        "nitrogen": data.nitrogen,
+        "kalium": data.kalium,
+        "fosfor": data.fosfor,
+        "konduktivitas": data.konduktivitas,
         "inputed_at": datetime.now()
     }
     result = collection.insert_one(document)
