@@ -23,6 +23,7 @@ class SensorData(BaseModel):
     konduktivitas: int = 0
     latitude: float = None
     longitude: float = None
+    
 collection = db[os.getenv("COLLECTION_NAME")]
 collection2 = db[os.getenv("COLLECTION_NAME2")]
 collection3 = db[os.getenv("COLLECTION_NAME3")]
