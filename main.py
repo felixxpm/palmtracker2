@@ -41,6 +41,7 @@ def read_root():
 async def get_data(
     items: int = Query(10, gt=0),
     page: int = Query(1, gt=0),
+    device: int = Query(None, description="Filter by device (1-6)"),
     suhu: float = Query(None),
     kelembapan: float = Query(None),
     ph: float = Query(None),
@@ -72,17 +73,30 @@ async def get_data(
     if longitude is not None:
         query["longitude"] = longitude
 
-    cursor = collection.find(query).sort("inputed_at", -1).skip(skip).limit(items)
+    # Pilih collection berdasarkan device, atau semua jika device None
+    collections = [collection, collection2, collection3, collection4, collection5, collection6]
+    if device is not None and 1 <= device <= 6:
+        collections = [collections[device-1]]
+
     data = []
-    for doc in cursor:
-        doc["_id"] = str(doc["_id"])
-        data.append(doc)
-    total = collection.count_documents(query)
+    total = 0
+    for col in collections:
+        cursor = col.find(query).sort("inputed_at", -1)
+        total += col.count_documents(query)
+        for doc in cursor:
+            doc["_id"] = str(doc["_id"])
+            doc["collection"] = col.name
+            data.append(doc)
+
+    # Sort gabungan dan paginasi manual
+    data = sorted(data, key=lambda x: x.get("inputed_at", datetime.min), reverse=True)
+    paged_data = data[skip:skip+items]
+
     return {
         "page": page,
         "items": items,
         "total": total,
-        "data": data
+        "data": paged_data
     }
 
 @app.post("/kirim-data")
@@ -114,5 +128,5 @@ async def kirim_data(data: SensorData):
     elif data.device == 6:
         result = collection6.insert_one(document)
     else:
-        return {"status": "Status Code: 404, Collection Not Found", "id": str(result.inserted_id)}
+        return {"status": "Status Code: 404, Collection Not Found"}
     return {"status": "OK", "id": str(result.inserted_id)}
