@@ -12,7 +12,6 @@ load_dotenv()
 # MongoDB setup
 client = MongoClient(os.getenv("MONGO_URI"))
 db = client[os.getenv("DB_NAME")]
-collection = db[os.getenv("COLLECTION_NAME")]
 class SensorData(BaseModel):
     device: int = 1
     suhu: float = 0
@@ -24,11 +23,12 @@ class SensorData(BaseModel):
     konduktivitas: int = 0
     latitude: float = None
     longitude: float = None
-collection2 = db["soilsensor2"]
-collection3 = db["soilsensor3"]
-collection4 = db["soilsensor4"]
-collection5 = db["soilsensor5"]
-collection6 = db["soilsensor6"]
+collection = db[os.getenv("COLLECTION_NAME")]
+collection2 = db[os.getenv("COLLECTION_NAME2")]
+collection3 = db[os.getenv("COLLECTION_NAME3")]
+collection4 = db[os.getenv("COLLECTION_NAME4")]
+collection5 = db[os.getenv("COLLECTION_NAME5")]
+collection6 = db[os.getenv("COLLECTION_NAME6")]
 app = FastAPI()
 
 @app.get("/")
